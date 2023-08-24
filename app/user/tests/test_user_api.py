@@ -11,6 +11,7 @@ from rest_framework import status
 
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
+ME_URL = reverse('user:me')
 PAYLOAD = {
     'email': 'test@example.com',
     'password': 'testpass123',
@@ -111,7 +112,7 @@ class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication."""
 
     def setUp(self):
-        self.user = create_user(PAYLOAD)
+        self.user = create_user(**PAYLOAD)
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -140,4 +141,4 @@ class PrivateUserApiTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.name, payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
-        self.assertEqual(res.status, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
