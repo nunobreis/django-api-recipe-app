@@ -78,7 +78,10 @@ class PrivateRecipeApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='user@example.com', password='testpass123')
+        self.user = create_user(
+            email='user@example.com',
+            password='testpass123',
+        )
         self.client.force_authenticate(self.user)
 
     def test_retrieve_recipes(self):
@@ -95,7 +98,10 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_recipe_list_limited_to_user(self):
         """Test list of recipes is limited to authenticated user."""
-        other_user = create_user(email='other@example.com', password='password123')
+        other_user = create_user(
+            email='other@example.com',
+            password='password123',
+        )
         create_recipe(user=other_user)
         create_recipe(user=self.user)
 
@@ -226,7 +232,10 @@ class PrivateRecipeApiTests(TestCase):
         recipe = recipes[0]
         self.assertEqual(recipe.tags.count(), 2)
         for tag in payload['tags']:
-            exists = recipe.tags.filter(name=tag['name'], user=self.user).exists()
+            exists = recipe.tags.filter(
+                name=tag['name'],
+                user=self.user
+            ).exists()
             self.assertTrue(exists)
 
     def test_create_recipe_with_existing_tags(self):
@@ -246,7 +255,10 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(recipe.tags.count(), 2)
         self.assertIn(tag_indian, recipe.tags.all())
         for tag in payload['tags']:
-            exists = recipe.tags.filter(name=tag['name'], user=self.user).exists()
+            exists = recipe.tags.filter(
+                name=tag['name'],
+                user=self.user
+            ).exists()
             self.assertTrue(exists)
 
     def test_create_tag_on_update(self):
@@ -306,7 +318,10 @@ class PrivateRecipeApiTests(TestCase):
         recipe = recipes[0]
         self.assertEqual(recipe.ingredients.count(), 2)
         for ingredient in payload['ingredients']:
-            exists = recipe.ingredients.filter(name=ingredient['name'], user=self.user).exists()
+            exists = recipe.ingredients.filter(
+                name=ingredient['name'],
+                user=self.user
+            ).exists()
             self.assertTrue(exists)
 
     def test_create_recipe_with_existing_ingredient(self):
@@ -327,7 +342,10 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(recipe.ingredients.count(), 2)
         self.assertIn(ingredient, recipe.ingredients.all())
         for ingredient in payload['ingredients']:
-            exists = recipe.ingredients.filter(name=ingredient['name'], user=self.user).exists()
+            exists = recipe.ingredients.filter(
+                name=ingredient['name'],
+                user=self.user
+            ).exists()
             self.assertTrue(exists)
 
     def test_create_ingredient_on_update(self):
@@ -394,8 +412,14 @@ class PrivateRecipeApiTests(TestCase):
         """Test filtering recipes by ingredients."""
         recipe1 = create_recipe(user=self.user, title='Posh Beans On Toast')
         recipe2 = create_recipe(user=self.user, title='Chicken Cacciatore')
-        ingredient1 = Ingredient.objects.create(user=self.user, name='Feta Cheese')
-        ingredient2 = Ingredient.objects.create(user=self.user, name='Chicken')
+        ingredient1 = Ingredient.objects.create(
+            user=self.user,
+            name='Feta Cheese',
+        )
+        ingredient2 = Ingredient.objects.create(
+            user=self.user,
+            name='Chicken',
+        )
         recipe1.ingredients.add(ingredient1)
         recipe2.ingredients.add(ingredient2)
         recipe3 = create_recipe(user=self.user, title='Red Lentil Daal')
@@ -411,7 +435,6 @@ class PrivateRecipeApiTests(TestCase):
         self.assertNotIn(serializer3.data, res.data)
 
 
-    
 class ImageUploadTests(TestCase):
     """Tests for the image upload API."""
 

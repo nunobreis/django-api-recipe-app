@@ -3,7 +3,7 @@ Django admin customaisation.
 """
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.utils.translation import gettext_lazy as _ #future proofing in case translations are needed
+from django.utils.translation import gettext_lazy as _
 
 
 from core import models

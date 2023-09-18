@@ -24,6 +24,7 @@ from core.models import (
 )
 from recipe import serializers
 
+
 @extend_schema_view(
     list=extend_schema(
         parameters=[
@@ -65,8 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return queryset.filter(
             user=self.request.user
-        ).order_by('-id').distinct() # distinct is to avoid duplicate recipes
-        # return self.queryset.filter(user=self.request.user).order_by('-id')
+        ).order_by('-id').distinct()
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
@@ -123,7 +123,7 @@ class BaseRecipeAttrViewSet(
         queryset = self.queryset
         if assigned_only:
             queryset = queryset.filter(recipe__isnull=False)
-            
+
         return queryset.filter(
             user=self.request.user
         ).order_by('-name').distinct()
@@ -139,5 +139,3 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage Ingredients in the database."""
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
-
-
