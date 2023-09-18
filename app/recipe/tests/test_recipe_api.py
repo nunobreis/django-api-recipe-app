@@ -365,7 +365,7 @@ class PrivateRecipeApiTests(TestCase):
         ingredient1 = Ingredient.objects.create(user=self.user, name='Pepper')
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient1)
-        
+
         ingredient2 = Ingredient.objects.create(user=self.user, name='Chili')
         payload = {'ingredients': [{'name': 'Chili'}]}
         url = detail_url(recipe.id)
