@@ -229,25 +229,25 @@ class PrivateRecipeApiTests(TestCase):
             exists = recipe.tags.filter(name=tag['name'], user=self.user).exists()
             self.assertTrue(exists)
 
-    # def test_create_recipe_with_existing_tags(self):
-    #     """Test creating a recipe with existing tag."""
-    #     tag_indian = Tag.objects.create(user=self.user, name='Indian')
-    #     payload = {
-    #         'title': 'Pongal',
-    #         'time_minutes': 60,
-    #         'price': Decimal('4.50'),
-    #         'tags': [{'name': 'Indian'}, {'name', 'Breakfast'}],
-    #     }
-    #     res = self.client.post(RECIPES_URL, payload, format='json')
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     recipes = Recipe.objects.filter(user=self.user)
-    #     self.assertEqual(recipes.count(), 1)
-    #     recipe = recipes[0]
-    #     self.assertEqual(recipe.tags.count(), 2)
-    #     self.assertIn(tag_indian, recipe.tags.all())
-    #     for tag in payload['tags']:
-    #         exists = recipe.tags.filter(name=tag['name'], user=self.user).exists()
-    #         self.assertTrue(exists)
+    def test_create_recipe_with_existing_tags(self):
+        """Test creating a recipe with existing tag."""
+        tag_indian = Tag.objects.create(user=self.user, name='Indian')
+        payload = {
+            'title': 'Pongal',
+            'time_minutes': 60,
+            'price': Decimal('4.50'),
+            'tags': [{'name': 'Indian'}, {'name': 'Breakfast'}],
+        }
+        res = self.client.post(RECIPES_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipes = Recipe.objects.filter(user=self.user)
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes[0]
+        self.assertEqual(recipe.tags.count(), 2)
+        self.assertIn(tag_indian, recipe.tags.all())
+        for tag in payload['tags']:
+            exists = recipe.tags.filter(name=tag['name'], user=self.user).exists()
+            self.assertTrue(exists)
 
     def test_create_tag_on_update(self):
         """Test creating tag when updating a recipe."""
@@ -369,6 +369,47 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
+
+    def test_filter_by_tags(self):
+        """Test filtering recipes by tag."""
+        recipe1 = create_recipe(user=self.user, title='Thai Vegetable Curry')
+        recipe2 = create_recipe(user=self.user, title='Aubergine with Tahini')
+        tag1 = Tag.objects.create(user=self.user, name='Vegan')
+        tag2 = Tag.objects.create(user=self.user, name='Vegetarian')
+        recipe1.tags.add(tag1)
+        recipe2.tags.add(tag2)
+        recipe3 = create_recipe(user=self.user, title='Fish and Chips')
+
+        params = {'tags': f'{tag1.id},{tag2.id}'}
+        res = self.client.get(RECIPES_URL, params)
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_by_ingredients(self):
+        """Test filtering recipes by ingredients."""
+        recipe1 = create_recipe(user=self.user, title='Posh Beans On Toast')
+        recipe2 = create_recipe(user=self.user, title='Chicken Cacciatore')
+        ingredient1 = Ingredient.objects.create(user=self.user, name='Feta Cheese')
+        ingredient2 = Ingredient.objects.create(user=self.user, name='Chicken')
+        recipe1.ingredients.add(ingredient1)
+        recipe2.ingredients.add(ingredient2)
+        recipe3 = create_recipe(user=self.user, title='Red Lentil Daal')
+
+        params = {'ingredients': f'{ingredient1.id},{ingredient2.id}'}
+        res = self.client.get(RECIPES_URL, params)
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
 
     
 class ImageUploadTests(TestCase):
